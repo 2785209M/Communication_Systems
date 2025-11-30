@@ -1,50 +1,96 @@
-import numpy as np
-import cv2
-import matplotlib.pyplot as plt
+from PIL import Image
 
-img = cv2.imread("photo.png", cv2.IMREAD_GRAYSCALE).astype(np.float32)
-orig_bytes = img.nbytes
+def run_length_encoding(image_array):
+    encoded_image = ""
 
-# --- FFT ---
-F = np.fft.fft2(img)
-F_shift = np.fft.fftshift(F)
+    for row in image_array:
+        current_pixel = row[0]
+        run_length = 1
 
-# keep only X% largest
-keep_ratio = 0.05
-N = img.size
-K = int(N * keep_ratio)
+        for pixel in row[1:]:
+            if pixel == current_pixel:
+                run_length += 1
+            else:
+                encoded_image += f"{run_length}:{current_pixel} "
+                current_pixel = pixel
+                run_length = 1
 
-# find threshold
-mag = np.abs(F_shift).flatten()
-thresh = np.partition(mag, -K)[-K]
+        encoded_image += f"{run_length}:{current_pixel}\n"
 
-# mask of values to keep
-mask = np.abs(F_shift) >= thresh
+    return encoded_image
 
-# extract sparse coefficients
-coords = np.column_stack(np.where(mask))       # int32
-values = F_shift[mask].astype(np.complex64)    # 8 bytes per complex
 
-# compressed memory size
-compressed_bytes = coords.nbytes + values.nbytes
+def decode_run_length(encoded_text):
+    image_array = []
 
-# --- Reconstruction ---
-F_sparse = np.zeros_like(F_shift)
-F_sparse[mask] = values
+    lines = encoded_text.strip().split("\n")
 
-img_rec = np.fft.ifft2(np.fft.ifftshift(F_sparse))
-img_rec = np.abs(img_rec).astype(np.uint8)
+    for line in lines:
+        row = []
+        tokens = line.split()
 
-# print results
-print("\n--- REAL Compression Results ---")
-print(f"Original bytes:      {orig_bytes}")
-print(f"Sparse coords bytes: {coords.nbytes}")
-print(f"Sparse values bytes: {values.nbytes}")
-print(f"Compressed total:    {compressed_bytes}")
-print(f"Compression ratio:   {orig_bytes / compressed_bytes:.2f}x")
-print(f"Kept coefficients:   {K}/{N} ({keep_ratio*100:.1f}%)")
+        for token in tokens:
+            run, pixel = token.split(":")
+            run = int(run)
+            pixel = int(pixel)
+            row.extend([pixel] * run)
 
-plt.figure(figsize=(12,6))
-plt.subplot(1,2,1); plt.imshow(img, cmap='gray'); plt.title("Original"); plt.axis("off")
-plt.subplot(1,2,2); plt.imshow(img_rec, cmap='gray'); plt.title("Reconstruction"); plt.axis("off")
-plt.show()
+        image_array.append(row)
+
+    return image_array
+
+
+
+def load_png_as_array(path, binary_threshold=None):
+    img = Image.open(path).convert("L")  # grayscale (0–255)
+
+    pixels = list(img.getdata())
+    width, height = img.size
+    pixel_array = [pixels[i * width:(i + 1) * width] for i in range(height)]
+
+    # Convert to 0/1 binary if chosen
+    if binary_threshold is not None:
+        pixel_array = [[1 if p > binary_threshold else 0 for p in row] for row in pixel_array]
+
+    return pixel_array
+
+
+def save_array_as_png(pixel_array, path):
+    """
+    Saves a 2D array of 0/1 (or 0–255 grayscale) pixels as a PNG image.
+    """
+
+    height = len(pixel_array)
+    width = len(pixel_array[0])
+
+    # Convert 0/1 binary back to grayscale
+    flattened = []
+    for row in pixel_array:
+        for p in row:
+            flattened.append(255 if p == 1 else 0)
+
+    img = Image.new("L", (width, height))
+    img.putdata(flattened)
+    img.save(path)
+    print(f"Image saved as {path}")
+
+
+# -----------------------------
+# Example usage
+# -----------------------------
+
+# 1. Load PNG → array
+image_array = load_png_as_array(
+    "/home/james/University/Communication_Systems/Communication_Channel_Report/image.jpg",
+    binary_threshold=128
+)
+
+# 2. Encode image → text
+encoded_image = run_length_encoding(image_array)
+print(encoded_image)
+
+# 3. Decode text → array
+decoded_array = decode_run_length(encoded_image)
+
+# 4. Save decoded array → PNG
+save_array_as_png(decoded_array, "decoded_output.png")
