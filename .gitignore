@@ -1,0 +1,56 @@
+# ------------------------
+# Python cache / compiled
+# ------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ------------------------
+# Virtual environments
+# ------------------------
+.venv/
+venv/
+env/
+
+# ------------------------
+# Package / build outputs
+# ------------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ------------------------
+# VS Code settings
+# (workspace-specific settings, logs, caches)
+# ------------------------
+.vscode/
+*.code-workspace
+
+# ------------------------
+# Jupyter Notebook checkpoints
+# ------------------------
+.ipynb_checkpoints/
+
+# ------------------------
+# IDE / editor files
+# ------------------------
+
+# VS Code
+.vscode/
+
+# JetBrains (PyCharm)
+.idea/
+
+# ------------------------
+# OS files
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# ------------------------
+# Custom folders you want ignored
+# ------------------------
+Tutorial1/
+Past_Papers/
