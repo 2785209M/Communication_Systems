@@ -15,22 +15,6 @@ if img is None:
 # convert the image to grayscale
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# compute 2D FFT and shift the zero-frequency component to the center
-f = np.fft.fft2(img_gray)
-fshift = np.fft.fftshift(f)
-
-# compute magnitude spectrum (use a small epsilon to avoid log(0))
-magnitude_spectrum = 20 * np.log(np.abs(fshift) + 1e-8)
-
-# Decompressed Image
-img_decomp = np.fft.ifft2(f)
-img_decomp = np.abs(img_decomp)
-
-print("Original Image bytes:", img.nbytes)        # total bytes used by original
-print("grayscale bytes:", img_gray.nbytes) # total bytes used by grayscale
-print("Compressed bytes:", f.nbytes) # total bytes used by f (Copmressed Image)
-print("Decompressed bytes:", img_decomp.nbytes)        # total bytes used by original
-
 plt.figure(figsize=(12, 6))
 plt.subplot(131)
 plt.imshow(img_gray, cmap='gray')

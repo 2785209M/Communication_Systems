@@ -1,17 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# A = 5 #amplitude
+# Vm = 5 #modulation frequency
+# m = 10 #modulation amplitude
+# DC = 1 #DC offset
+# Vc = 100 #carrier frequency
+# k = 1 #frequency index
+
+# st = 0 #start time
+# et = 1 #end time
+# N = 1000 #number of samples
+# n = np.linspace(st, et, N)
+
 def sin(a, v, t):
     sin = a * np.sin(2 * np.pi * v * t) #Sine Wave Function
     return sin
 
 def amplitude_modulation(m, Vm, A, Vc, DC, n):
-    """
-    Function to generate an amplitude
-    modulated signal based on a carrier signal
-    and modulation signal
-    """
-
     modulation = sin(m, Vm, n)
     carrier = sin(A, Vc, n)
     am = (DC + modulation) * carrier
@@ -29,11 +35,6 @@ def DFT(x): #Discrete Fourier Transform
     return X
 
 def IDFT(X):  # Inverse Discrete Fourier Transform
-    """
-    Compute the inverse DFT:
-    x[n] = (1/N) * sum_k X[k] * exp(+2j*pi*k*n/N)
-    Returns a complex numpy array (time-domain signal).
-    """
     X = np.asarray(X, dtype=complex)
     N = len(X)
     n = np.arange(N)
