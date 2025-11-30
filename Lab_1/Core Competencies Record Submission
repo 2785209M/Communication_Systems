@@ -1,0 +1,159 @@
+Received: from LO0P302MB1758.GBRP302.PROD.OUTLOOK.COM (2603:10a6:600:402::17)
+ by CW1P302MB2186.GBRP302.PROD.OUTLOOK.COM with HTTPS; Thu, 23 Oct 2025
+ 15:07:02 +0000
+Received: from DU2PR04CA0044.eurprd04.prod.outlook.com (2603:10a6:10:234::19)
+ by LO0P302MB1758.GBRP302.PROD.OUTLOOK.COM (2603:10a6:600:402::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.13; Thu, 23 Oct
+ 2025 15:06:59 +0000
+Received: from DU2PEPF0001E9C1.eurprd03.prod.outlook.com
+ (2603:10a6:10:234:cafe::50) by DU2PR04CA0044.outlook.office365.com
+ (2603:10a6:10:234::19) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9253.13 via Frontend Transport; Thu,
+ 23 Oct 2025 15:06:59 +0000
+Authentication-Results: spf=pass (sender IP is 130.209.16.103)
+ smtp.mailfrom=glasgow.ac.uk; dkim=pass (signature was verified)
+ header.d=glasgow.ac.uk;dmarc=pass action=none header.from=glasgow.ac.uk;
+Received-SPF: Pass (protection.outlook.com: domain of glasgow.ac.uk designates
+ 130.209.16.103 as permitted sender) receiver=protection.outlook.com;
+ client-ip=130.209.16.103; helo=hilltop.cent.gla.ac.uk; pr=C
+Received: from hilltop.cent.gla.ac.uk (130.209.16.103) by
+ DU2PEPF0001E9C1.mail.protection.outlook.com (10.167.8.70) with Microsoft SMTP
+ Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9253.7 via
+ Frontend Transport; Thu, 23 Oct 2025 15:06:59 +0000
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=glasgow.ac.uk; s=mail-relay-gla; h=Content-Type:MIME-Version:Message-ID:
+	Subject:Reply-To:From:To:Date:Sender:Cc:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=d4gIA7LyFwpgFAE/LXjs7HNkDbzmWhBv7M2k41Yk4PM=; b=EFoMWENC9JqT5C97jyU35k47gH
+	T4f889+1ULZaH6du8A0+kuCZuBQ9UJW8T8Zbgy0WXDDljZ9rSZh+9NnMMzSRjGMiL+Q2SJXWM/34o
+	0A6+skafTlUHaHTIHGtHoLAL878cUFotZN/gLlGgp+F8hJyIOzYeg8wI8i3SlX7e1VmUQtgt+E0D8
+	vy+4FKnVlbawzZyNTmZBxYWw67NdQW1eaeG48Po7OFSPBt3bn1etJ3s4s1nasjZHraW0jDMqxZ8q1
+	drLZv8EoMbqIUXPYmapRlo3LpaM8UGy7sSOjrFvW97U09w5Qqr2VWJJ2z5QuO/qCGG3hGlQtS500/
+	GbzMCcbQ==;
+Received: from moodle4fe4.gla.ac.uk ([130.209.34.174] helo=moodle.gla.ac.uk)
+	by hilltop.cent.gla.ac.uk with esmtp (Exim 4.98.2)
+	(envelope-from <moodlesystem@glasgow.ac.uk>)
+	id 1vBwu3-00000004AA0-13q5
+	for 2785209M@student.gla.ac.uk;
+	Thu, 23 Oct 2025 16:06:59 +0100
+Date: Thu, 23 Oct 2025 16:06:59 +0100
+To: "James Middleton" <2785209M@student.gla.ac.uk>
+From: "Participant 113530215 (via Moodle)" <moodlesystem@glasgow.ac.uk>
+Reply-To: "Do not reply to this email" <moodlesystem@glasgow.ac.uk>
+Subject: You have submitted your assignment submission for Core Competencies Record Submission
+Message-ID: <68fa44933865a5.18405101@moodle.gla.ac.uk>
+X-Mailer: PHPMailer 6.9.1 (https://github.com/PHPMailer/PHPMailer)
+X-Moodle-Originating-Script: https://moodle.gla.ac.uk => moodle4fe4:mod/assign/locallib.php:6620
+Content-Type: multipart/alternative;
+ boundary="b1=_fLhCmYJfQDeImk2KKuhs8Eer8pgrnTcEe57vLu9fKU"
+Return-Path: moodlesystem@glasgow.ac.uk
+X-MS-Exchange-Organization-ExpirationStartTime: 23 Oct 2025 15:06:59.5196
+ (UTC)
+X-MS-Exchange-Organization-ExpirationStartTimeReason: OriginalSubmit
+X-MS-Exchange-Organization-ExpirationInterval: 1:00:00:00.0000000
+X-MS-Exchange-Organization-ExpirationIntervalReason: OriginalSubmit
+X-MS-Exchange-Organization-Network-Message-Id: b95844de-5e41-4515-357e-08de1245d09d
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Organization-MessageDirectionality: Originating
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DU2PEPF0001E9C1:EE_|LO0P302MB1758:EE_|CW1P302MB2186:EE_
+X-MS-Exchange-Organization-AuthSource: DU2PEPF0001E9C1.eurprd03.prod.outlook.com
+X-MS-Exchange-Organization-AuthAs: Anonymous
+X-OriginatorOrg: campus.gla.ac.uk
+X-MS-Office365-Filtering-Correlation-Id: b95844de-5e41-4515-357e-08de1245d09d
+X-MS-Exchange-AtpMessageProperties: SL
+X-MS-Exchange-Organization-BypassFocusedInbox: true
+X-MS-Exchange-Organization-SCL: -1
+X-UofG-TR: NotSpamMailRelay
+X-Microsoft-Antispam: BCL:2;ARA:13230040|5062899012|3092899012|3072899012|2092899012|82310400026|12012899012|13003099007|8096899003;
+X-Forefront-Antispam-Report: CIP:130.209.16.103;CTRY:GB;LANG:en;SCL:-1;SRV:;IPV:NLI;SFV:NSPM;H:hilltop.cent.gla.ac.uk;PTR:hilltop.cent.gla.ac.uk;CAT:NONE;SFS:(13230040)(5062899012)(3092899012)(3072899012)(2092899012)(82310400026)(12012899012)(13003099007)(8096899003);DIR:INB;
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Oct 2025 15:06:59.5093
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b95844de-5e41-4515-357e-08de1245d09d
+X-MS-Exchange-CrossTenant-Id: 6e725c29-763a-4f50-81f2-2e254f0133c8
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=6e725c29-763a-4f50-81f2-2e254f0133c8;Ip=[130.209.16.103];Helo=[hilltop.cent.gla.ac.uk]
+X-MS-Exchange-CrossTenant-AuthSource: DU2PEPF0001E9C1.eurprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO0P302MB1758
+X-MS-Exchange-Transport-EndToEndLatency: 00:00:03.1534453
+X-MS-Exchange-Processed-By-BccFoldering: 15.20.9253.009
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(910005)(944506478)(944626604)(920097)(930097)(140003)(1420198);
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?3o0/08pd9Xk2qZPnV+G45FY+QzXwqPjLYDVNFfDgfwVvgS+LdLMFiaGjDmlo?=
+ =?us-ascii?Q?RyTNrvvoEqi8Dvztfjc4wvxpl1m4rfGixI0SN6juO07AHZcsqNMHi/Vp8yU1?=
+ =?us-ascii?Q?MT/FU+vbaxPyzl4ijCeXWsN9wBwQaV+erhTEMcJYFud48sb92eWJOsY9szfb?=
+ =?us-ascii?Q?lli6dfcghGhdBOE+dOReNeirf0BYJtniejzh7K79KBSjC/caam+rveIE1dVg?=
+ =?us-ascii?Q?SKm5Ac+EQKU6SqOOjX87pVkHd9O+livEmUFSpMQQpacdsqeL+uVt+4eOm1N4?=
+ =?us-ascii?Q?/uJLgMm1+zzOIWlH6oBJVJpABhpZEPg5UF/W+NdJqpvfH5VPeb5CuU2jdh0L?=
+ =?us-ascii?Q?EH54WSD7JZ27MYp3IhNkgIdyygqgU8NqzYeRAZPnBTABWpRHrVlNYP6Cugxe?=
+ =?us-ascii?Q?8TmhcRezG+NTL2EdQvjmc7AlLDra2WNP4foUGfye7aYg5Td542o/yqFl37pB?=
+ =?us-ascii?Q?Dfwj9zqnjoEBbq4Y2oaL1SVILZqpD6oUAGVO6Ko/hmgNgKsJ/zOQVeaps+rJ?=
+ =?us-ascii?Q?kJmFQzNG+V1NlnmxzvHZFArva6aK8p3oCtQNQXpygzU9uR9sD4HyTz8EYo9m?=
+ =?us-ascii?Q?EikH/bMm9xbMyaGCcOJGsFrM659K15EQ3/r25XJr9WnXI9JCAz/nL0Itls12?=
+ =?us-ascii?Q?D1KTan5HKFA2+DNhN12yepJPDtccsaxt6CDmGarepbN5+h2I72h98H69lWhp?=
+ =?us-ascii?Q?G0GuDCQFvSS2heZaXcExLn1jkWizDTxynuLIzqvREGFAUpote42pVYUIJzXz?=
+ =?us-ascii?Q?pAjw8Nf+FQhRKuy7z+IxV6J7BoOuG1TToL+TU9UjknW/AVHC7YWVthJ2rG9V?=
+ =?us-ascii?Q?QG0N8HQqF21ps7N9x3cAS93Pp3DpWdqy673dQ5VZKywCWkluPoA379MvWpvm?=
+ =?us-ascii?Q?R4QfPu4tEMqnkmtcmP26KlfEu1eK4ABmC0oBXb/sWMtPAlPWS4D/wp334Ruv?=
+ =?us-ascii?Q?E3FVOuYHplmpOcjROZKrDMuwNl4nEh6Tsps4355rmy5GLHoCe6f7//AQSZPX?=
+ =?us-ascii?Q?UBJqh2qXVCDw0Z/L3hmO0p7XKOF9X6SOpHWAq2yKRLBMpTV+IrDuRNk4uRN7?=
+ =?us-ascii?Q?L5sJL060BxvXaDqxPsc4qAPs/BeZlsmu9NTzr2fa6sB3qnmkVq+4GwWubCtJ?=
+ =?us-ascii?Q?nbrujQYj6FBgqGNbq1qCYTNkri4ZikEwl1i5K7w3nA3rz8IaUZ3W5tGZGTDa?=
+ =?us-ascii?Q?Fno+F2aqT5k7w4NpgXkVCrVKDXknLeY5WURuuwy53VkdM6G/Q1CNF8DTZc9/?=
+ =?us-ascii?Q?r1wL3JFVqy30r7D9w07UQMLpg0kiE7G7YdpOCYGqCZDHq/5pWiGmmbeNhR9h?=
+ =?us-ascii?Q?YU+85Tj/8TmAkJ1tnbwoM37V9iJl1KcnnS9TuQaKlLi6qc4mA26mnjX1sGsV?=
+ =?us-ascii?Q?nda+fvTn+hgdEmjPOR15S3aDdLI9n9KDpMu7AsoQyhX0cfiSVAHUfVrR0G4E?=
+ =?us-ascii?Q?1BarvdzoS1iNDCQN16F6lx/xVYE5iV7XSYiWIQH3hHFaoNOU/6yTOtQsH1Kn?=
+ =?us-ascii?Q?0ljkINZHthvJ+wWLndKsqCKD39UYQFggxwFowcsiDhWfvoQpNfUWoRIFAni0?=
+ =?us-ascii?Q?vvLiX/gjl0oqgdBxoLo0Y73zNjDtLAzs1GJTOg9VQIXqjh6pPKE+wdjquZm5?=
+ =?us-ascii?Q?q3vxaFn1AOn2OTZ+BuIZZIkO9w4QOM/Nn5XwxK/89espKRRlWc9Or5JoNu4p?=
+ =?us-ascii?Q?OHVavhrpu5mWZUUrQfOw0JsBTRCka/iswU2Fn0MVTr4MdVnPsCSX5sRzYAYR?=
+ =?us-ascii?Q?NP/m+5SstQxt9VKTChX2lXuWoCdOeDTBu5HM5nkPJiGbkEqoz2kZAzDnMV7Y?=
+ =?us-ascii?Q?z+VBZ0B4i+uFeKSDAO5CG+3iS2spNTYfDi6K0B/FBIz0Q897Q2QKo0CWbI7j?=
+ =?us-ascii?Q?nH8NgNcpHCfsP2N0qthyShDGLdBmyqN3/OnuG8yLDNcDeJHobDmzE4/Y5DCC?=
+ =?us-ascii?Q?KH0zWtvTj28T+52qtsILoHrSQK3Nt69l5hb7PDpT6jfUB/iONVaE+VllJFsx?=
+ =?us-ascii?Q?4+xZFipPmXQ4GHn26GG8s+G69vhKKtWQguRKS2o9LXF+hCnnJqsbsKOYv8RN?=
+ =?us-ascii?Q?bEfTh1S4GwgoPGLglEPLDRqRPTka0Gm96/zeuM0WgbDUX0m4jEpF+KPVMy5n?=
+ =?us-ascii?Q?o2qILh2RTfiIDvR2CD7yXya7lflqGzaj1tekC58p1CmU5ETmIORZFL9CrB7X?=
+ =?us-ascii?Q?daqjNZkNyf4JbA0e58T+KdDHY57m+HbyerYJWhBGONEG8pbUI79iDUmZ23B2?=
+ =?us-ascii?Q?i2E0uLV7i7yt+daMD86yL7857IWOTWheiHnWWd8oGGMTM0FhBrW+EdrM3C8i?=
+ =?us-ascii?Q?OJkMAgBXzTjlbEhfRuCctB42iYIZ3PfjWWuWPmEreNWhUQ=3D=3D?=
+MIME-Version: 1.0
+
+--b1=_fLhCmYJfQDeImk2KKuhs8Eer8pgrnTcEe57vLu9fKU
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+
+ENG3014_2025 -> Assignment -> Core Competencies Record Submission
+---------------------------------------------------------------------
+You have submitted an
+assignment submission for 'Core Competencies Record Submission'
+
+You can see the status of your assignment submission:
+
+https://moodle.gla.ac.uk/mod/assign/view.php?id=3D5650323
+
+---------------------------------------------------------------------
+
+--b1=_fLhCmYJfQDeImk2KKuhs8Eer8pgrnTcEe57vLu9fKU
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8"><p=
+><font face=3D"sans-serif"><a href=3D"https://moodle.gla.ac.uk/course/view.=
+php?id=3D51442">ENG3014_2025</a> -&gt;<a href=3D"https://moodle.gla.ac.uk/m=
+od/assign/index.php?id=3D51442">Assignment</a> -&gt;<a href=3D"https://mood=
+le.gla.ac.uk/mod/assign/view.php?id=3D5650323">Core Competencies Record Sub=
+mission</a></font></p><hr><font face=3D"sans-serif"><p><p>You have submitte=
+d an assignment submission for '<i>Core Competencies Record Submission</i>'=
+.</p>=0A=
+<p>You can see the status of your <a href=3D"https://moodle.gla.ac.uk/mod/a=
+ssign/view.php?id=3D5650323">assignment submission</a>.</p></p></font><hr>
+
+--b1=_fLhCmYJfQDeImk2KKuhs8Eer8pgrnTcEe57vLu9fKU--

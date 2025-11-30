@@ -1,0 +1,189 @@
+\documentclass{article}
+\usepackage{blindtext}
+\usepackage{graphicx}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}
+\graphicspath{{images/}}
+
+\title{Experimental Lab 2 Report}
+\author{James Henrik Middleton (2785209M)}
+\date{November 2025}
+
+\begin{document}
+\pagenumbering{gobble}
+\begin{titlepage}
+    \maketitle
+    \center{Written in LaTeX}
+\end{titlepage}
+
+    \newpage
+
+    \section*{Aims} %==========================================================================
+
+    \begin{flushleft}
+        The aims of this experiemnt are to invesgiate the formation of eye diagrams based from
+        digital signals. Eye diagrams can help to visualize SNR, Jitter, and timing error in a digital signal. 
+        We will be using a digital oscilloscope to visualize our outputs.
+    \end{flushleft}
+
+    \section*{Method} %========================================================================
+
+    \begin{flushleft}
+        We enabled infinite persistence and chose an appropriate trigger height on 
+        the oscilloscope and it produced an eye diagram as shown in Figure 1.
+    \end{flushleft}
+
+    \begin{flushleft}
+        We then changed the frequency of the wave to 50Hz, 100Hz, 200Hz, and 300Hz respectively to
+        analyse the effect this has on the shape of the eye. The output of this is shown in Figure 2.
+    \end{flushleft}
+
+    \begin{flushleft}
+        We wrote a python script to generate 2 different types of array to be input into 
+        a picoscope for wave generation.
+        Our script generated a wave that had 10 sample points per bit. 
+        We generated 2 different types of bit sequence: on-off keying and PAM-4.
+        We generated 5 different waves each with a different SNR (6, 8, 12, 18, and 24dB). 
+        The output from the on-off keaying is shown in Figure 3 and the PAM-4 keying is shown in Figure 4.
+    \end{flushleft}
+
+    \begin{flushleft}
+        We set the oscilloscope math function to low pass filter and gradually changed the frequency 
+        from 10MHz to 40kHz and analyzed the effect on our eye diagram. 
+        The output of this experiment is shown in Figure 5.
+    \end{flushleft}
+
+    \section*{Conclusion} %===================================================================================
+
+    \begin{flushleft} %Discuss the formation of an eye diagram and the effect that jitter has on the shape
+        Eye diagrams are created by overlaying multiple segments of a digital signal to create a single 
+        graphical representation of the wave. They are used to measure the integrity of a digital signal.
+        A "jittery" or "closed" (high signal interference) eye diagram means low integrity.
+        Example (a) in Figure 1 shows a clear eye diagram whereas in example (b) the trigger is too low and therefore jitter is high.
+    \end{flushleft}
+
+    \begin{flushleft} %Discuss how different frequencies of wave changes the shape of the eye
+        We tested the eye diagram with multiple different frequencies. From the results produced we can see that 
+        at a low frequency the edges, or "lids" of the eye diagram will be further apart. At higher frequencies 
+        they will be closer together (with the distance roughly halving proportionally to a doubling of the frequency).
+        We can also see that the eye becomes gradually more rounded or starts to "close" at higher frequencies.
+        This shows that higher frequencies can lead to signal loss. This could be due to interference within close peaks
+        within the signal and the fact that the signal may not have time to reach peak voltage with faster oscillations.
+    \end{flushleft}
+
+    \begin{flushleft} %Discuss the effet of the signal to noise ratio on the clarity of the eye diagram with on-off keying
+        We can see that a low signal to noise ratio cause extreme jitter in the eye diagram which means low integrity
+        in the signal. At (6-8:1)dB the eye diagram is almost unidentifiable due to jitter. At (12:1)dB we can begin to
+        see an eye diagram forming. At (18:1)dB the diagram becomes much clearer and we can begin to identify the eyelids. At
+        (24:1) the signal is clear and we can identify the eyelids. This shows that at signal to noise ratios below (12:1)dB
+        have too much interference to produce a legible signal with on-off keying. We can also see that the signal narrows 
+        as noise decreases. This may be because the noise combines certain peaks in the signal which increases the amplitude.
+    \end{flushleft}
+
+    \begin{flushleft} %%Discuss the effet of the signal to noise ratio on the clarity of the eye diagram with PAM-4 keying
+        The main difference between PAM-4 keying and on-off keying is that PAM-4 uses 4 bit levels whilst on-off uses 
+        2 (binary). The way noise effects these signals is very similar. From (6-8:1)dB there is not distinguashable shape.
+        From (12-18:1)dB the eye diagram begins to form. At (24:1)dB the signal becomes clear and the eyelids are identifiable.
+        One of the main differences we can see is that at lower SNR the PAM-4 signal shrinks whereas the on-off signal widens.
+        This may be because with high noise the 4 levels in PAM-4 interfer deleteriously which reduces signal amplitude.
+    \end{flushleft}
+
+    \begin{flushleft} %Discuss the effect of bandwith on the output of the low-pass filter
+        At a 10MHz bandwidth the output is a basic square wave. There is no identifiable curvature or eye formation.
+        At 1MHz the corners begin to smooth. At 40kHz the eyes become clear.
+        This is beacuse as the bandwidth shrinks the high frequencies of the signal become attenuated (Their peaks are cut)
+        which leads to sloping at the edges of the square wave.
+    \end{flushleft}
+
+    \begin{flushleft}
+        This lab has taught us the effect that SNR, bandwidth, frequency, and trigger point has on the integrity of signals.
+        We have learned how to create, read, and adjust eye diagrams.
+    \end{flushleft}
+
+    \newpage
+    \section*{Results} %======================================================================
+
+    \begin{figure}[htbp!]
+    \hfill
+    \center
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{scope_1.png}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{more_jitter_trigger_at_top.png} 
+        \caption{}
+    \end{subfigure}
+    \caption{Eye Diagram - High and Low Trigger}
+    \end{figure}
+    \hfill
+    \begin{figure}[htbp!]
+        \begin{subfigure}{0.24\linewidth}
+            \includegraphics[width=\linewidth]{50Hz.png}
+        \end{subfigure}
+        \begin{subfigure}{0.24\linewidth}
+            \includegraphics[width=\linewidth]{100Hz.png}
+        \end{subfigure}
+        \begin{subfigure}{0.24\linewidth}
+            \includegraphics[width=\linewidth]{200Hz.png}
+        \end{subfigure}
+        \begin{subfigure}{0.24\linewidth}
+            \includegraphics[width=\linewidth]{300Hz.png}
+        \end{subfigure}
+        \caption{Frequencies [50, 100, 200, 300]Hz}
+    \end{figure}
+
+    \begin{figure}[htbp!]
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{6dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{8dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{12dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{18dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{24dB.png}
+        \end{subfigure}
+        \caption{On-off keying SNR ratios [6, 8, 12, 18, 24]dB}
+    \end{figure}
+
+    \begin{figure}[htbp!]
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{PAM6dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{PAM8dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{PAM12dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{PAM18dB.png}
+        \end{subfigure}
+        \begin{subfigure}{0.19\linewidth}
+            \includegraphics[width=\linewidth]{PAM24dB.png}
+        \end{subfigure}
+        \caption{PAM-4 SNR ratios [6, 8, 12, 18, 24]dB}
+    \end{figure}
+
+    \begin{figure}[htbp!]
+        \begin{subfigure}{0.33\linewidth}
+            \includegraphics[width=\linewidth]{10MHzBandwidth.png}
+        \end{subfigure}
+        \begin{subfigure}{0.33\linewidth}
+            \includegraphics[width=\linewidth]{1MHzBandwidth.png}
+        \end{subfigure}
+        \begin{subfigure}{0.33\linewidth}
+            \includegraphics[width=\linewidth]{40kHzBandwidth.png}
+        \end{subfigure}
+        \caption{Low-Pass Filter Bandwidth [10MHz, 1MHz, 40kHz]}
+    \end{figure}
+
+\end{document}
