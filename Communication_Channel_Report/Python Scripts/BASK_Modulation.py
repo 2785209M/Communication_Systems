@@ -48,7 +48,7 @@ def demodulate_bask(modulated_signal, samples_per_bit, threshold=0.4):
 
     return recovered
 
-
+# Convert Coded bits back into text
 def bits_to_text(bits):
     if len(bits) % 8 != 0:
         raise ValueError("Binary length is not a multiple of 8")
@@ -61,6 +61,42 @@ def bits_to_text(bits):
 
     data = bytes(byte_values)
     return data.decode("utf-8")
+
+# Apply a Filter to the signal
+import numpy as np
+
+def lowpass_numpy(signal, carrier_freq, samples_per_bit, taps=101, bandwidth_ratio=0.2):
+    """
+    Pure NumPy low-pass FIR filter for bandwidth limiting.
+    
+    signal: modulated BASK waveform (numpy array)
+    carrier_freq: Hz
+    samples_per_bit: sampling rate (samples/sec)
+    taps: number of FIR coefficients (higher = sharper cutoff)
+    bandwidth_ratio: fraction of carrier bandwidth (0.2 = 20%)
+    """
+
+    fs = samples_per_bit                     # sampling rate
+    cutoff = bandwidth_ratio * carrier_freq  # limit BW to <20% fc
+
+    # Normalized cutoff frequency
+    norm_cutoff = cutoff / (fs / 2)
+
+    # Create symmetric FIR filter kernel (sinc-based)
+    n = np.arange(taps)
+    middle = (taps - 1) / 2
+    h = np.sinc((n - middle) * norm_cutoff)
+
+    # Apply Hamming window
+    h *= np.hamming(taps)
+
+    # Normalize so gain = 1
+    h /= np.sum(h)
+
+    # Filter via convolution
+    filtered = np.convolve(signal, h, mode='same')
+
+    return filtered
 
 
 def plot_bits(time, modulated_signal, samples_per_bit, bits=5):
@@ -75,17 +111,23 @@ def plot_bits(time, modulated_signal, samples_per_bit, bits=5):
     plt.grid(True)
     plt.show()
 
+# Initialize wave parameters
+bits = 100
+samples_per_bit=1000
+freq=5
 
 # Define the SNR values you want to test
-snr_values = [24, 18, 12, 8, 6]
+snr_values = [24, 18, 6]
 # Define Original Data as a vector of Binary digits
 vector = read_text("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
 # Modulate a sin wave using this data
-time, modulated = modulate_bask(vector, samples_per_bit=1000, freq=5)
+time, modulated = modulate_bask(vector, samples_per_bit, freq)
+# Use a low pass filter to decrease the bandwidth of the signal by 80%
+filtered_modulated = lowpass_numpy(modulated, freq, samples_per_bit)
 # Simulate Noise in the signal
 noisy_signals = snr(snr_values, modulated)
 # Recovered Data
-recovered = demodulate_bask(modulated, samples_per_bit=1000)
+recovered = demodulate_bask(modulated, samples_per_bit)
 recovered_text = bits_to_text(recovered)
 
 # Error Checking
@@ -97,10 +139,18 @@ print("Recovered first 40 bits:", recovered[:40])
 errors = sum(1 for a,b in zip(vector, recovered) if a!=b)
 print("Total bit errors:", errors)
 
+# Display Clean vs Filtered Waveforms
+plt.figure(figsize=(12,4))
+plt.plot(modulated[:2000], label="Original BASK", alpha=0.6)
+plt.plot(filtered_modulated[:2000], label="Filtered BASK (20% BW)", linewidth=2)
+plt.legend()
+plt.grid(True)
+plt.title("Effect of Bandwidth-Limiting Filter")
+plt.show()
+
 # Display Noisy signals
 num_plots = len(noisy_signals)
 plt.figure(figsize=(12, 3 * num_plots))
-
 for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
     plt.subplot(num_plots, 1, i)
     plt.plot(time[:5000], noisy[:5000])
@@ -108,10 +158,9 @@ for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
     plt.xlabel("Time")
     plt.ylabel("Amplitude")
     plt.grid(True)
-
 plt.tight_layout()
 plt.show()
 
 # Display Results
 print("Recovered text:", recovered_text)
-plot_bits(time, modulated, samples_per_bit=1000, bits=100)
+plot_bits(time, modulated, samples_per_bit, bits)
