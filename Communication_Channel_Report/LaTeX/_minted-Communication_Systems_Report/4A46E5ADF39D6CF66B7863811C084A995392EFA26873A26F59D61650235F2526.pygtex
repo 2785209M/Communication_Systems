@@ -1,0 +1,170 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{read\PYGZus{}text}\PYG{p}{(}\PYG{n}{path}\PYG{p}{):}
+    \PYG{k}{with} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{path}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}r\PYGZdq{}}\PYG{p}{,} \PYG{n}{encoding}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}utf\PYGZhy{}8\PYGZdq{}}\PYG{p}{)} \PYG{k}{as} \PYG{n}{f}\PYG{p}{:}
+        \PYG{n}{s} \PYG{o}{=} \PYG{n}{f}\PYG{o}{.}\PYG{n}{read}\PYG{p}{()}
+
+    \PYG{n}{data} \PYG{o}{=} \PYG{n}{s}\PYG{o}{.}\PYG{n}{encode}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}utf\PYGZhy{}8\PYGZdq{}}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} convert to real bytes}
+
+    \PYG{n}{b} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb}{format}\PYG{p}{(}\PYG{n}{byte}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}08b\PYGZsq{}}\PYG{p}{)} \PYG{k}{for} \PYG{n}{byte} \PYG{o+ow}{in} \PYG{n}{data}\PYG{p}{)}
+    \PYG{n}{vector} \PYG{o}{=} \PYG{p}{[}\PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{bit}\PYG{p}{)} \PYG{k}{for} \PYG{n}{bit} \PYG{o+ow}{in} \PYG{n}{b}\PYG{p}{]}
+
+    \PYG{k}{return} \PYG{n}{vector}
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{modulate\PYGZus{}bask}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{,} \PYG{n}{freq}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{):}
+    \PYG{n}{t} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{)}          \PYG{c+c1}{\PYGZsh{} time for one bit}
+    \PYG{n}{carrier} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sin}\PYG{p}{(}\PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{freq} \PYG{o}{*} \PYG{n}{t}\PYG{p}{)}          \PYG{c+c1}{\PYGZsh{} one\PYGZhy{}bit carrier}
+
+    \PYG{n}{full\PYGZus{}carrier} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{tile}\PYG{p}{(}\PYG{n}{carrier}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{))}    \PYG{c+c1}{\PYGZsh{} repeat carrier for each bit}
+    \PYG{n}{modulation\PYGZus{}signal} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{repeat}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{)}
+
+    \PYG{n}{modulated} \PYG{o}{=} \PYG{n}{full\PYGZus{}carrier} \PYG{o}{*} \PYG{n}{modulation\PYGZus{}signal}
+
+    \PYG{c+c1}{\PYGZsh{} Build full time axis for entire signal}
+    \PYG{n}{total\PYGZus{}time} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{linspace}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{),} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{modulated}\PYG{p}{))}
+
+    \PYG{k}{return} \PYG{n}{total\PYGZus{}time}\PYG{p}{,} \PYG{n}{modulated}
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{demodulate\PYGZus{}bask}\PYG{p}{(}\PYG{n}{modulated\PYGZus{}signal}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{,} \PYG{n}{threshold}\PYG{o}{=}\PYG{l+m+mf}{0.4}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} Threshold =\PYGZgt{} threshold separating rounding for 0 and 1}
+    \PYG{n}{num\PYGZus{}bits} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{modulated\PYGZus{}signal}\PYG{p}{)} \PYG{o}{//} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}
+    \PYG{n}{recovered} \PYG{o}{=} \PYG{p}{[]}
+
+    \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{num\PYGZus{}bits}\PYG{p}{):}
+        \PYG{n}{block} \PYG{o}{=} \PYG{n}{modulated\PYGZus{}signal}\PYG{p}{[}\PYG{n}{i}\PYG{o}{*}\PYG{n}{samples\PYGZus{}per\PYGZus{}bit} \PYG{p}{:} \PYG{p}{(}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{o}{*}\PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{]}
+        \PYG{n}{amplitude} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{block}\PYG{p}{))}           \PYG{c+c1}{\PYGZsh{} envelope detection}
+        \PYG{n}{recovered}\PYG{o}{.}\PYG{n}{append}\PYG{p}{(}\PYG{l+m+mi}{1} \PYG{k}{if} \PYG{n}{amplitude} \PYG{o}{\PYGZgt{}} \PYG{n}{threshold} \PYG{k}{else} \PYG{l+m+mi}{0}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{recovered}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{numpy}\PYG{+w}{ }\PYG{k}{as}\PYG{+w}{ }\PYG{n+nn}{np}
+
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{numpy}\PYG{+w}{ }\PYG{k}{as}\PYG{+w}{ }\PYG{n+nn}{np}
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{fir\PYGZus{}bandpass\PYGZus{}filter}\PYG{p}{(}\PYG{n}{lowcut}\PYG{p}{,} \PYG{n}{highcut}\PYG{p}{,} \PYG{n}{fs}\PYG{p}{,} \PYG{n}{numtaps}\PYG{o}{=}\PYG{l+m+mi}{501}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} Normalize frequencies (0..0.5)}
+    \PYG{n}{f1} \PYG{o}{=} \PYG{n}{lowcut} \PYG{o}{/} \PYG{n}{fs}
+    \PYG{n}{f2} \PYG{o}{=} \PYG{n}{highcut} \PYG{o}{/} \PYG{n}{fs}
+
+    \PYG{c+c1}{\PYGZsh{} Filter tap index centered at 0}
+    \PYG{n}{n} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{numtaps}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{p}{(}\PYG{n}{numtaps} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mi}{2}
+
+    \PYG{c+c1}{\PYGZsh{} Bandpass = High LPF minus Low LPF}
+    \PYG{n}{h} \PYG{o}{=} \PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{f2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sinc}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{f2}\PYG{o}{*}\PYG{n}{n}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{f1} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sinc}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{o}{*}\PYG{n}{f1}\PYG{o}{*}\PYG{n}{n}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Apply Hamming window}
+    \PYG{n}{window} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{hamming}\PYG{p}{(}\PYG{n}{numtaps}\PYG{p}{)}
+    \PYG{n}{h} \PYG{o}{*=} \PYG{n}{window}
+
+    \PYG{c+c1}{\PYGZsh{} Normalize to unity gain at passband center}
+    \PYG{c+c1}{\PYGZsh{} Calculate frequency response at center frequency}
+    \PYG{n}{center\PYGZus{}freq} \PYG{o}{=} \PYG{p}{(}\PYG{n}{f1} \PYG{o}{+} \PYG{n}{f2}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mi}{2}
+    \PYG{n}{omega} \PYG{o}{=} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{n}{center\PYGZus{}freq}
+    \PYG{n}{freq\PYGZus{}response} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{h} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{exp}\PYG{p}{(}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{n}{j} \PYG{o}{*} \PYG{n}{omega} \PYG{o}{*} \PYG{n}{np}\PYG{o}{.}\PYG{n}{arange}\PYG{p}{(}\PYG{n}{numtaps}\PYG{p}{)))}
+    \PYG{n}{h} \PYG{o}{/=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{freq\PYGZus{}response}\PYG{p}{)}
+
+    \PYG{k}{return} \PYG{n}{h}
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{apply\PYGZus{}fir}\PYG{p}{(}\PYG{n}{signal}\PYG{p}{,} \PYG{n}{filt}\PYG{p}{):}
+\PYG{+w}{    }\PYG{l+s+sd}{\PYGZdq{}\PYGZdq{}\PYGZdq{}Apply FIR filter via convolution (no SciPy).\PYGZdq{}\PYGZdq{}\PYGZdq{}}
+    \PYG{k}{return} \PYG{n}{np}\PYG{o}{.}\PYG{n}{convolve}\PYG{p}{(}\PYG{n}{signal}\PYG{p}{,} \PYG{n}{filt}\PYG{p}{,} \PYG{n}{mode}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}same\PYGZsq{}}\PYG{p}{)}
+
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{bits\PYGZus{}to\PYGZus{}text}\PYG{p}{(}\PYG{n}{bits}\PYG{p}{):}
+    \PYG{k}{if} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{bits}\PYG{p}{)} \PYG{o}{\PYGZpc{}} \PYG{l+m+mi}{8} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{:}
+        \PYG{k}{raise} \PYG{n+ne}{ValueError}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Binary length is not a multiple of 8\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} group into bytes}
+    \PYG{n}{byte\PYGZus{}values} \PYG{o}{=} \PYG{p}{[}
+        \PYG{n+nb}{int}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZsq{}}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{bit}\PYG{p}{)} \PYG{k}{for} \PYG{n}{bit} \PYG{o+ow}{in} \PYG{n}{bits}\PYG{p}{[}\PYG{n}{i}\PYG{p}{:}\PYG{n}{i}\PYG{o}{+}\PYG{l+m+mi}{8}\PYG{p}{]),} \PYG{l+m+mi}{2}\PYG{p}{)}
+        \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{bits}\PYG{p}{),} \PYG{l+m+mi}{8}\PYG{p}{)}
+    \PYG{p}{]}
+
+    \PYG{n}{data} \PYG{o}{=} \PYG{n+nb}{bytes}\PYG{p}{(}\PYG{n}{byte\PYGZus{}values}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{data}\PYG{o}{.}\PYG{n}{decode}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}utf\PYGZhy{}8\PYGZdq{}}\PYG{p}{)}
+
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{plot\PYGZus{}bits}\PYG{p}{(}\PYG{n}{time}\PYG{p}{,} \PYG{n}{modulated\PYGZus{}signal}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{,} \PYG{n}{bits}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} Plot the first N bits of the modulated signal.}
+    \PYG{n}{N} \PYG{o}{=} \PYG{n}{bits} \PYG{o}{*} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}
+
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{10}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{))}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{time}\PYG{p}{[:}\PYG{n}{N}\PYG{p}{],} \PYG{n}{modulated\PYGZus{}signal}\PYG{p}{[:}\PYG{n}{N}\PYG{p}{])}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}First }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{bits}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ BASK\PYGZhy{}modulated bits\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Time\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Amplitude\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+
+\PYG{c+c1}{\PYGZsh{} Define the SNR values you want to test}
+\PYG{n}{snr\PYGZus{}values} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{24}\PYG{p}{,} \PYG{l+m+mi}{18}\PYG{p}{,} \PYG{l+m+mi}{12}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{,} \PYG{l+m+mi}{6}\PYG{p}{]}
+\PYG{c+c1}{\PYGZsh{} Define Original Data as a vector of Binary digits}
+\PYG{n}{vector} \PYG{o}{=} \PYG{n}{read\PYGZus{}text}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/home/james/University/Communication\PYGZus{}Systems/Communication\PYGZus{}Channel\PYGZus{}Report/Input.txt\PYGZdq{}}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} Modulate a sin wave using this data}
+\PYG{n}{time}\PYG{p}{,} \PYG{n}{modulated} \PYG{o}{=} \PYG{n}{modulate\PYGZus{}bask}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{,} \PYG{n}{freq}\PYG{o}{=}\PYG{l+m+mi}{5}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} Simulate Noise in the signal}
+\PYG{n}{noisy\PYGZus{}signals} \PYG{o}{=} \PYG{n}{snr}\PYG{p}{(}\PYG{n}{snr\PYGZus{}values}\PYG{p}{,} \PYG{n}{modulated}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} Recovered Data}
+\PYG{n}{recovered} \PYG{o}{=} \PYG{n}{demodulate\PYGZus{}bask}\PYG{p}{(}\PYG{n}{modulated}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{)}
+\PYG{n}{recovered\PYGZus{}text} \PYG{o}{=} \PYG{n}{bits\PYGZus{}to\PYGZus{}text}\PYG{p}{(}\PYG{n}{recovered}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Error Checking}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Original bits:\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{))}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Recovered bits:\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{recovered}\PYG{p}{))}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Difference:\PYGZdq{}}\PYG{p}{,} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{recovered}\PYG{p}{)} \PYG{o}{\PYGZhy{}} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{))}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Original first 40 bits:\PYGZdq{}}\PYG{p}{,} \PYG{n}{vector}\PYG{p}{[:}\PYG{l+m+mi}{40}\PYG{p}{])}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Recovered first 40 bits:\PYGZdq{}}\PYG{p}{,} \PYG{n}{recovered}\PYG{p}{[:}\PYG{l+m+mi}{40}\PYG{p}{])}
+\PYG{n}{errors} \PYG{o}{=} \PYG{n+nb}{sum}\PYG{p}{(}\PYG{l+m+mi}{1} \PYG{k}{for} \PYG{n}{a}\PYG{p}{,}\PYG{n}{b} \PYG{o+ow}{in} \PYG{n+nb}{zip}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{,} \PYG{n}{recovered}\PYG{p}{)} \PYG{k}{if} \PYG{n}{a}\PYG{o}{!=}\PYG{n}{b}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Total bit errors:\PYGZdq{}}\PYG{p}{,} \PYG{n}{errors}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Display Results}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Recovered text:\PYGZdq{}}\PYG{p}{,} \PYG{n}{recovered\PYGZus{}text}\PYG{p}{)}
+\PYG{n}{plot\PYGZus{}bits}\PYG{p}{(}\PYG{n}{time}\PYG{p}{,} \PYG{n}{modulated}\PYG{p}{,} \PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{o}{=}\PYG{l+m+mi}{1000}\PYG{p}{,} \PYG{n}{bits}\PYG{o}{=}\PYG{l+m+mi}{100}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Display Noisy signals}
+\PYG{n}{num\PYGZus{}plots} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{noisy\PYGZus{}signals}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{l+m+mi}{3} \PYG{o}{*} \PYG{n}{num\PYGZus{}plots}\PYG{p}{))}
+
+\PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{p}{(}\PYG{n}{snr}\PYG{p}{,} \PYG{n}{noisy}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{noisy\PYGZus{}signals}\PYG{o}{.}\PYG{n}{items}\PYG{p}{(),} \PYG{n}{start}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{):}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplot}\PYG{p}{(}\PYG{n}{num\PYGZus{}plots}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{i}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{time}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{],} \PYG{n}{noisy}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{])}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}BASK Signal with AWGN (SNR = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{snr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ dB)\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{xlabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Time\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{ylabel}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Amplitude\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{()}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+
+
+\PYG{n}{fs} \PYG{o}{=} \PYG{l+m+mi}{1000}      \PYG{c+c1}{\PYGZsh{} sampling rate}
+\PYG{n}{fc} \PYG{o}{=} \PYG{l+m+mi}{5}         \PYG{c+c1}{\PYGZsh{} carrier frequency}
+
+\PYG{n}{lowcut} \PYG{o}{=} \PYG{l+m+mf}{4.5}       \PYG{c+c1}{\PYGZsh{} narrow band around fc (20\PYGZpc{} of original BW)}
+\PYG{n}{highcut} \PYG{o}{=} \PYG{l+m+mf}{5.5}
+
+\PYG{c+c1}{\PYGZsh{} Design the filter}
+\PYG{n}{bp\PYGZus{}filter} \PYG{o}{=} \PYG{n}{fir\PYGZus{}bandpass\PYGZus{}filter}\PYG{p}{(}\PYG{n}{lowcut}\PYG{p}{,} \PYG{n}{highcut}\PYG{p}{,} \PYG{n}{fs}\PYG{p}{,} \PYG{n}{numtaps}\PYG{o}{=}\PYG{l+m+mi}{801}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Display Filtered Noisy Signals}
+\PYG{n}{num\PYGZus{}plots} \PYG{o}{=} \PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{noisy\PYGZus{}signals}\PYG{p}{)}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{figure}\PYG{p}{(}\PYG{n}{figsize}\PYG{o}{=}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{l+m+mi}{3} \PYG{o}{*} \PYG{n}{num\PYGZus{}plots}\PYG{p}{))}
+
+\PYG{k}{for} \PYG{n}{i}\PYG{p}{,} \PYG{p}{(}\PYG{n}{snr}\PYG{p}{,} \PYG{n}{noisy}\PYG{p}{)} \PYG{o+ow}{in} \PYG{n+nb}{enumerate}\PYG{p}{(}\PYG{n}{noisy\PYGZus{}signals}\PYG{o}{.}\PYG{n}{items}\PYG{p}{(),} \PYG{n}{start}\PYG{o}{=}\PYG{l+m+mi}{1}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} Apply the filter to your BASK signal}
+    \PYG{n}{filtered\PYGZus{}signal} \PYG{o}{=} \PYG{n}{apply\PYGZus{}fir}\PYG{p}{(}\PYG{n}{noisy}\PYG{p}{,} \PYG{n}{bp\PYGZus{}filter}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{subplot}\PYG{p}{(}\PYG{n}{num\PYGZus{}plots}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{i}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{time}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{],} \PYG{n}{noisy}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{],} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Noisy\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{plot}\PYG{p}{(}\PYG{n}{time}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{],} \PYG{n}{filtered\PYGZus{}signal}\PYG{p}{[:}\PYG{l+m+mi}{50000}\PYG{p}{],} \PYG{n}{label}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Filtered\PYGZdq{}}\PYG{p}{,} \PYG{n}{linewidth}\PYG{o}{=}\PYG{l+m+mi}{2}\PYG{p}{)}
+
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{grid}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{legend}\PYG{p}{()}
+    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{title}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Bandpass Filter (SNR = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{snr}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ dB)\PYGZdq{}}\PYG{p}{)}
+
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{tight\PYGZus{}layout}\PYG{p}{()}
+\PYG{n}{plt}\PYG{o}{.}\PYG{n}{show}\PYG{p}{()}
+\end{Verbatim}

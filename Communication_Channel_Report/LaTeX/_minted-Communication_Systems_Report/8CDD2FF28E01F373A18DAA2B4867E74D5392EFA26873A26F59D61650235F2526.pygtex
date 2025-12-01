@@ -1,0 +1,72 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{random}
+\PYG{k+kn}{import}\PYG{+w}{ }\PYG{n+nn}{numpy}\PYG{+w}{ }\PYG{k}{as}\PYG{+w}{ }\PYG{n+nn}{np}
+
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{gen\PYGZus{}rand\PYGZus{}vector}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{} 1. Generate random 100\PYGZhy{}bit sequence}
+    \PYG{n}{bit\PYGZus{}sequence} \PYG{o}{=} \PYG{p}{[}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{)} \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{100}\PYG{p}{)]}
+    \PYG{n}{samples\PYGZus{}per\PYGZus{}bit} \PYG{o}{=} \PYG{l+m+mi}{10}
+    \PYG{c+c1}{\PYGZsh{} 2. Expand each bit into samples, convert to float}
+    \PYG{n}{vector} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{([}\PYG{n+nb}{float}\PYG{p}{(}\PYG{n}{bit}\PYG{p}{)} \PYG{k}{for} \PYG{n}{bit} \PYG{o+ow}{in} \PYG{n}{bit\PYGZus{}sequence} \PYG{k}{for} \PYG{n}{\PYGZus{}} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{samples\PYGZus{}per\PYGZus{}bit}\PYG{p}{)])}
+    \PYG{k}{return} \PYG{n}{vector}
+
+\PYG{c+c1}{\PYGZsh{} 3. Compute RMS voltage of the waveform}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{vrms}\PYG{p}{(}\PYG{n}{waveform}\PYG{p}{):}
+    \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sqrt}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{mean}\PYG{p}{(}\PYG{n}{waveform}\PYG{o}{**}\PYG{l+m+mi}{2}\PYG{p}{))}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}Signal RMS voltage = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{v\PYGZus{}rms\PYGZus{}carrier}\PYG{l+s+si}{:}\PYG{l+s+s2}{.5f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{return} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier}
+
+\PYG{c+c1}{\PYGZsh{} Function to add AWGN at given SNR\PYGZus{}dB and rescale the signal}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{add\PYGZus{}awgn\PYGZus{}and\PYGZus{}rescale}\PYG{p}{(}\PYG{n}{carrier}\PYG{p}{,} \PYG{n}{snr\PYGZus{}db}\PYG{p}{,} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier}\PYG{p}{):}
+    \PYG{c+c1}{\PYGZsh{} compute noise RMS}
+    \PYG{n}{v\PYGZus{}rms\PYGZus{}noise} \PYG{o}{=} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{10}\PYG{o}{**}\PYG{p}{(}\PYG{n}{snr\PYGZus{}db} \PYG{o}{/} \PYG{l+m+mf}{20.0}\PYG{p}{))}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}For SNR=}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{snr\PYGZus{}db}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ dB → Noise RMS = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{v\PYGZus{}rms\PYGZus{}noise}\PYG{l+s+si}{:}\PYG{l+s+s2}{.5f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{} generate noise (Gaussian with zero mean)}
+    \PYG{n}{noise} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{carrier}\PYG{p}{))} \PYG{o}{*} \PYG{n}{v\PYGZus{}rms\PYGZus{}noise}
+    \PYG{c+c1}{\PYGZsh{} add noise to signal}
+    \PYG{n}{noisy} \PYG{o}{=} \PYG{n}{carrier} \PYG{o}{+} \PYG{n}{noise}
+    \PYG{c+c1}{\PYGZsh{} rescale so max(|value|) = 1}
+    \PYG{n}{max\PYGZus{}abs} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{max}\PYG{p}{(}\PYG{n}{np}\PYG{o}{.}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{noisy}\PYG{p}{))}
+    \PYG{k}{if} \PYG{n}{max\PYGZus{}abs} \PYG{o}{==} \PYG{l+m+mi}{0}\PYG{p}{:}
+        \PYG{n}{rescaled} \PYG{o}{=} \PYG{n}{noisy}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{n}{rescaled} \PYG{o}{=} \PYG{n}{noisy} \PYG{o}{/} \PYG{n}{max\PYGZus{}abs}
+    \PYG{k}{return} \PYG{n}{rescaled}
+
+\PYG{c+c1}{\PYGZsh{} Function to just add AWGN at given SNR\PYGZus{}dB}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{add\PYGZus{}awgn}\PYG{p}{(}\PYG{n}{carrier}\PYG{p}{,} \PYG{n}{snr\PYGZus{}db}\PYG{p}{,} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier}\PYG{p}{):}
+    \PYG{n}{v\PYGZus{}rms\PYGZus{}noise} \PYG{o}{=} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier} \PYG{o}{/} \PYG{p}{(}\PYG{l+m+mi}{10}\PYG{o}{**}\PYG{p}{(}\PYG{n}{snr\PYGZus{}db} \PYG{o}{/} \PYG{l+m+mf}{20.0}\PYG{p}{))}
+    \PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s2}{\PYGZdq{}For SNR=}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{snr\PYGZus{}db}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{ dB → Noise RMS = }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{v\PYGZus{}rms\PYGZus{}noise}\PYG{l+s+si}{:}\PYG{l+s+s2}{.5f}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{noise} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{random}\PYG{o}{.}\PYG{n}{randn}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{carrier}\PYG{p}{))} \PYG{o}{*} \PYG{n}{v\PYGZus{}rms\PYGZus{}noise}
+    \PYG{n}{noisy} \PYG{o}{=} \PYG{n}{carrier} \PYG{o}{+} \PYG{n}{noise}
+    \PYG{k}{return} \PYG{n}{noisy}  \PYG{c+c1}{\PYGZsh{} no rescale here}
+
+
+\PYG{c+c1}{\PYGZsh{} 5. Generate noisy waveforms \PYGZam{} save CSVs}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{snr}\PYG{p}{(}\PYG{n}{snr\PYGZus{}values}\PYG{p}{,} \PYG{n}{vector}\PYG{p}{):}
+    \PYG{k}{if}\PYG{p}{(}\PYG{o+ow}{not} \PYG{n}{snr\PYGZus{}values}\PYG{p}{):}
+        \PYG{k}{raise} \PYG{n+ne}{FileNotFoundError}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}SNR Values not found. Abort.\PYGZdq{}}\PYG{p}{)}
+
+    \PYG{c+c1}{\PYGZsh{} Compute RMS voltage of the waveform}
+    \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier} \PYG{o}{=} \PYG{n}{vrms}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{)}
+
+    \PYG{n}{noisy\PYGZus{}waves} \PYG{o}{=} \PYG{p}{\PYGZob{}\PYGZcb{}}
+    \PYG{k}{for} \PYG{n}{snr} \PYG{o+ow}{in} \PYG{n}{snr\PYGZus{}values}\PYG{p}{:}
+        \PYG{n}{noisy\PYGZus{}wave} \PYG{o}{=} \PYG{n}{add\PYGZus{}awgn}\PYG{p}{(}\PYG{n}{vector}\PYG{p}{,} \PYG{n}{snr}\PYG{p}{,} \PYG{n}{v\PYGZus{}rms\PYGZus{}carrier}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{} fname = f\PYGZdq{}waveform\PYGZus{}SNR\PYGZus{}\PYGZob{}snr\PYGZcb{}dB.csv\PYGZdq{}}
+        \PYG{c+c1}{\PYGZsh{} with open(fname, \PYGZdq{}w\PYGZdq{}, newline=\PYGZdq{}\PYGZdq{}) as f:}
+        \PYG{c+c1}{\PYGZsh{}     writer = csv.writer(f)}
+        \PYG{c+c1}{\PYGZsh{}     for v in noisy\PYGZus{}wave:}
+        \PYG{c+c1}{\PYGZsh{}         writer.writerow([v])}
+        \PYG{c+c1}{\PYGZsh{} print(f\PYGZdq{}Saved \PYGZob{}fname\PYGZcb{}\PYGZdq{})}
+        \PYG{n}{noisy\PYGZus{}waves}\PYG{p}{[}\PYG{n}{snr}\PYG{p}{]} \PYG{o}{=} \PYG{n}{noisy\PYGZus{}wave}
+    \PYG{k}{return} \PYG{n}{noisy\PYGZus{}waves}
+
+
+\PYG{c+c1}{\PYGZsh{} Define SNR values}
+\PYG{n}{snr\PYGZus{}values} \PYG{o}{=} \PYG{p}{[}\PYG{l+m+mi}{24}\PYG{p}{,} \PYG{l+m+mi}{18}\PYG{p}{,} \PYG{l+m+mi}{12}\PYG{p}{,} \PYG{l+m+mi}{8}\PYG{p}{,} \PYG{l+m+mi}{6}\PYG{p}{]}
+\PYG{c+c1}{\PYGZsh{} Define vector}
+\PYG{n}{vector} \PYG{o}{=} \PYG{n}{gen\PYGZus{}rand\PYGZus{}vector}\PYG{p}{()}
+\PYG{c+c1}{\PYGZsh{} Generate noisy waveforms \PYGZam{} save CSVs}
+\PYG{n}{noisy\PYGZus{}waves} \PYG{o}{=} \PYG{n}{snr}\PYG{p}{(}\PYG{n}{snr\PYGZus{}values}\PYG{p}{,} \PYG{n}{vector}\PYG{p}{)}
+\end{Verbatim}
