@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+from Random_Noise import snr
 
 def read_text(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -35,6 +35,7 @@ def modulate_bask(vector, samples_per_bit=1000, freq=1):
 
     return total_time, modulated
 
+
 def demodulate_bask(modulated_signal, samples_per_bit, threshold=0.4):
     # Threshold => threshold separating rounding for 0 and 1
     num_bits = len(modulated_signal) // samples_per_bit
@@ -46,6 +47,7 @@ def demodulate_bask(modulated_signal, samples_per_bit, threshold=0.4):
         recovered.append(1 if amplitude > threshold else 0)
 
     return recovered
+
 
 def bits_to_text(bits):
     if len(bits) % 8 != 0:
@@ -73,10 +75,15 @@ def plot_bits(time, modulated_signal, samples_per_bit, bits=5):
     plt.grid(True)
     plt.show()
 
+# Define Original Data as a vector of Binary digits
 vector = read_text("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
-
+# Modulate a sin wave using this data
 time, modulated = modulate_bask(vector, samples_per_bit=1000, freq=5)
+# Recovered Data
 recovered = demodulate_bask(modulated, samples_per_bit=1000)
+recovered_text = bits_to_text(recovered)
+
+# Error Checking
 print("Original bits:", len(vector))
 print("Recovered bits:", len(recovered))
 print("Difference:", len(recovered) - len(vector))
@@ -85,7 +92,6 @@ print("Recovered first 40 bits:", recovered[:40])
 errors = sum(1 for a,b in zip(vector, recovered) if a!=b)
 print("Total bit errors:", errors)
 
-recovered_text = bits_to_text(recovered)
-
+# Display Results
 print("Recovered text:", recovered_text)
-plot_bits(time, modulated, samples_per_bit=1000, bits=20)
+plot_bits(time, modulated, samples_per_bit=1000, bits=100)
