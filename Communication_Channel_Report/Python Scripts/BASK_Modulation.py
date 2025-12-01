@@ -75,10 +75,15 @@ def plot_bits(time, modulated_signal, samples_per_bit, bits=5):
     plt.grid(True)
     plt.show()
 
+
+# Define the SNR values you want to test
+snr_values = [24, 18, 12, 8, 6]
 # Define Original Data as a vector of Binary digits
 vector = read_text("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
 # Modulate a sin wave using this data
 time, modulated = modulate_bask(vector, samples_per_bit=1000, freq=5)
+# Simulate Noise in the signal
+noisy_signals = snr(snr_values, modulated)
 # Recovered Data
 recovered = demodulate_bask(modulated, samples_per_bit=1000)
 recovered_text = bits_to_text(recovered)
@@ -91,6 +96,21 @@ print("Original first 40 bits:", vector[:40])
 print("Recovered first 40 bits:", recovered[:40])
 errors = sum(1 for a,b in zip(vector, recovered) if a!=b)
 print("Total bit errors:", errors)
+
+# Display Noisy signals
+num_plots = len(noisy_signals)
+plt.figure(figsize=(12, 3 * num_plots))
+
+for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
+    plt.subplot(num_plots, 1, i)
+    plt.plot(time[:5000], noisy[:5000])
+    plt.title(f"BASK Signal with AWGN (SNR = {snr} dB)")
+    plt.xlabel("Time")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+
+plt.tight_layout()
+plt.show()
 
 # Display Results
 print("Recovered text:", recovered_text)
