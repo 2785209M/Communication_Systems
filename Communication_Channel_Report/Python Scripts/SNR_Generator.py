@@ -52,12 +52,6 @@ def snr(snr_values, vector):
     noisy_waves = {}
     for snr in snr_values:
         noisy_wave = add_awgn(vector, snr, v_rms_carrier)
-        # fname = f"waveform_SNR_{snr}dB.csv"
-        # with open(fname, "w", newline="") as f:
-        #     writer = csv.writer(f)
-        #     for v in noisy_wave:
-        #         writer.writerow([v])
-        # print(f"Saved {fname}")
         noisy_waves[snr] = noisy_wave
     return noisy_waves
 
