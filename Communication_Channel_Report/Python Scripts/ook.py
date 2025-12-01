@@ -1,28 +1,22 @@
-import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-import Modulation as mod
 
-# read the image file
-img = cv2.imread('../image.png', 0)
-if img is None:
-    raise FileNotFoundError("Image not Found. Check Path and Filename.")
+# Read the text file
+f = open("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
+s = f.read()
 
-# converting to its binary form
-ret, bw_img = cv2.threshold(img, 50, 1, cv2.THRESH_BINARY)
+b = ''.join(format(ord(char), '08b') for char in s)
 
-# Convert the binary image to a vector
-vector = bw_img.flatten()
-print(vector)
+vector = [int(bit) for bit in b]
 
 # Modulate a sin wave to carry the signal
-samples_per_bit = 50
-f = 10
+samples_per_bit = 1000
+freq = 5
 t = np.linspace(0, 1, samples_per_bit)
+bits = 20
+N = bits * samples_per_bit
 
-carrier_signal = np.sin(2*np.pi*f*t)
+carrier_signal = np.sin(2*np.pi*freq*t)
 
 full_carrier = np.tile(carrier_signal, len(vector))
 
@@ -30,10 +24,7 @@ modulation_signal = np.repeat(vector, samples_per_bit)
 
 modulated_signal = full_carrier * modulation_signal
 
-print(modulated_signal[9000:10000])
+T = np.linspace(0, len(vector), len(modulated_signal))
 
-# Display Data (scale back to 0-255 for correct visualization)
-plt.imshow(bw_img * 255, cmap = "gray")
-plt.title("Binary")
-plt.axis("off")
+plt.plot(T[:N], modulated_signal[:N])
 plt.show()
