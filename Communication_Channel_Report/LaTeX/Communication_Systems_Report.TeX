@@ -1,256 +1,165 @@
 \documentclass{article}
-\usepackage{geometry}[margin=0.1in]
+\usepackage[margin=0.1in]{geometry}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{graphicx}
 \usepackage{minted}
+\usepackage{placeins}
+\graphicspath{{./images/}}
 
 \title{Communication Channel Report}
 \date{December 2025}
 \author{James Henrik Middleton (2785209M)}
 
 \begin{document}
-{\tiny\maketitle}
+\maketitle
 
-\setminted{fontsize=\tiny}
-\begin{minted}{python}
-def read_text(path):
-    with open(path, "r", encoding="utf-8") as f:
-        s = f.read()
+\section{Introduction}
+\begin{flushleft}
+    This document details the process of creating a Binary Amplitude Shift Keying Simulation in Python.
+    I chose BASK because of its simplicity compared to other forms of modulation.
+    Due to it being binary, the modulation is very simple. To create a BASK modulated all you need is to create a binary array, 
+    and multiply it by a sinusoidal carrier. Although BASK is simple, 
+    it is more sensitive to noise and amplitude distortion than phase-based methods such as BPSK. In this simulation, 
+    additive noise is introduced to evaluate how the modulated signal degrades under different noise conditions.
+\end{flushleft}
 
-    data = s.encode("utf-8")  # convert to real bytes
+\section{Method}
 
-    b = ''.join(format(byte, '08b') for byte in data)
-    vector = [int(bit) for bit in b]
+\subsection{Converting Text to Binary}
+\begin{flushleft}
+    The BASKModulation.py file starts by extracting data from a text file. It converts the string to binary using UTF-8 coding.
+    This means that each character in the txt file is represented by 8 binary digits. Upon encoding the recieved signal must maintain 
+    this structure or the decoded message would be illegible.
+\end{flushleft}
 
-    return vector
+\subsection{Modulation using a Binary Vector}
+\begin{flushleft}
+    To create a modulated waveform we must first create a carrier wave. This is done within the modulatebask() function.
+    This function takes three parameters: vector, samples per bit, and frequency. The vector is the binary array. The samples
+    per bit are the number of samples taken per bit of data. The frequency component in this case is the number of full carrier cycles per bit.
+    The np.tile function is used to match the total number of samples in the sin wave to that of the vector, creating the "full-carrier" wave.
+    The np.repeat function is used to create repetitions of binary elements in the vector, so it can be multiplied by the
+    full carrier, creating the modulation signal. the multiplication of the full carrier and modulation signals produces
+    the modulated waveform which is used to carry our data.
+\end{flushleft}
 
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=\linewidth]{BASK_modulated_Signal.png}
+    \caption{Pure BASK Signal}
+\end{figure}
+\FloatBarrier
 
-def modulate_bask(vector, samples_per_bit=1000, freq=1):
-    t = np.linspace(0, 1, samples_per_bit)          # time for one bit
-    carrier = np.sin(2 * np.pi * freq * t)          # one-bit carrier
+\subsection{Adding Noise to the Signal}
+\begin{flushleft}
+    To Simulate noise in the signal I used code based on Experimental lab 2. The three Signal to Noise Ratio (SNR) values experimented
+    with here are 6dB, 18dB, and 24dB. In order to add noise into our signal we must calculate the rms amplitude of our modulated wave. To do this we simply
+    use numpy functions to take the root of the mean of the square of our carrier wave (which is represented by a vector).
+    This value is the passed into the additive white gaussian noise function. This adds noise in the correct ratio to the signal
+    such that it conforms to the provided SNR. It converts the SNR to dB into a linear ratio and uses this to compute the 
+    required noise RMS value into the carrier wave's RMS value. This is then used to generate gaussian noise using np.random.randn.
+    It then adds noise directly into the modulated wave and returns the new "noisy" signal. This simulates background radiation
+    and white noise which can affect the clarity of communication signals.
+\end{flushleft}
 
-    full_carrier = np.tile(carrier, len(vector))    # repeat carrier for each bit
-    modulation_signal = np.repeat(vector, samples_per_bit)
+\[
+\text{RMS of a signal } x(t) = \sqrt{\frac{1}{T} \int_{0}^{T} x(t)^{2}\, dt}
+\]
 
-    modulated = full_carrier * modulation_signal
+\[
+\text{Discrete RMS} = \sqrt{\frac{1}{N} \sum_{i=1}^{N} x_i^{2}}
+\]
 
-    # Build full time axis for entire signal
-    total_time = np.linspace(0, len(vector), len(modulated))
+\begin{figure}[htbp!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Noisy_Signals.png}
+    \caption{Noisy Signals}
+\end{figure}
+\FloatBarrier
 
-    return total_time, modulated
+\subsection{Bandpass Filtering}
 
+\begin{flushleft}
+    In order to improve the clarity of the noisy signal we have to perform filtering. Filters can be high pass, low pass, bandpass, or band stop. 
+    For this Simulation I have implemented a bandpass filter. A bandpass filter removes edge frequencies from a signal whilst allowing a selected middle
+    band to pass. As per the specifications of the pass I have attempted to design a filter that only allows 20$\%$ of the carrier frequenct through. I set the 
+    carrier frequency to 5Hz and set the bandpass filter to only pass a bandwidth of between 4.5Hz and 5.5Hz ($\frac{1}{5} = 20\%$). \\
+    The bandpass filter function has 4 parameters: lowcut, highcut, fs, and numtaps. Lowcut and highcut are the cutoff frequencies.
+    Within the function lowcut and highcut are normalized through division by the sampling rate (fs) to give cycles per bit - which is how this system measure
+    frequency. Numtaps is the number of coefficients within the filter. It determines the filter's length, sharpness, and computational cost.
+    Larger numtap values typically give a narrower transition band but with greater delay. Numtaps is typically chosen to be an
+    odd number so the band can be symmetric around a central point. This band is then given a size by calculating the difference
+    between the high pass and low pass. This value is then multiplied by a hamming window to produce a cleaner frequency with
+    reduced ripple. The normalization calculation at the end of the function evaluates the filter's frequenct response and rescales the
+    coefficients so the filter has unity gain, ensuring that the passband amplitude is correctly normalized. The passband is then returned from the function.
+\end{flushleft}
 
-def demodulate_bask(modulated_signal, samples_per_bit, threshold=0.4):
-    # Threshold => threshold separating rounding for 0 and 1
-    num_bits = len(modulated_signal) // samples_per_bit
-    recovered = []
-
-    for i in range(num_bits):
-        block = modulated_signal[i*samples_per_bit : (i+1)*samples_per_bit]
-        amplitude = np.mean(np.abs(block))           # envelope detection
-        recovered.append(1 if amplitude > threshold else 0)
-
-    return recovered
-
-import numpy as np
-
-import numpy as np
-
-def fir_bandpass_filter(lowcut, highcut, fs, numtaps=501):
-    # Normalize frequencies (0..0.5)
-    f1 = lowcut / fs
-    f2 = highcut / fs
-    
-    # Filter tap index centered at 0
-    n = np.arange(numtaps) - (numtaps - 1) / 2
-    
-    # Bandpass = High LPF minus Low LPF
-    h = 2*f2 * np.sinc(2*f2*n) - 2*f1 * np.sinc(2*f1*n)
-    
-    # Apply Hamming window
-    window = np.hamming(numtaps)
-    h *= window
-    
-    # Normalize to unity gain at passband center
-    # Calculate frequency response at center frequency
-    center_freq = (f1 + f2) / 2
-    omega = 2 * np.pi * center_freq
-    freq_response = np.sum(h * np.exp(-1j * omega * np.arange(numtaps)))
-    h /= np.abs(freq_response)
-    
-    return h
-
-
-def apply_fir(signal, filt):
-    """Apply FIR filter via convolution (no SciPy)."""
-    return np.convolve(signal, filt, mode='same')
-
-
-
-def bits_to_text(bits):
-    if len(bits) % 8 != 0:
-        raise ValueError("Binary length is not a multiple of 8")
-
-    # group into bytes
-    byte_values = [
-        int(''.join(str(bit) for bit in bits[i:i+8]), 2)
-        for i in range(0, len(bits), 8)
-    ]
-
-    data = bytes(byte_values)
-    return data.decode("utf-8")
-
-
-def plot_bits(time, modulated_signal, samples_per_bit, bits=5):
-    # Plot the first N bits of the modulated signal.
-    N = bits * samples_per_bit
-
-    plt.figure(figsize=(10,4))
-    plt.plot(time[:N], modulated_signal[:N])
-    plt.title(f"First {bits} BASK-modulated bits")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.grid(True)
-    plt.show()
+\[
+n = \left[\,0,1,2,\ldots,(\text{numtaps}-1)\,\right] \;-\; \frac{\text{numtaps}-1}{2}
+\]
+\[
+H(\omega) = \sum_{n=0}^{\text{numtaps}-1} h[n]\, e^{-j \omega n}
+\]
+\[
+h[n] \leftarrow \frac{h[n]}{\left| H(\omega) \right|}
+\]
 
 
-# Define the SNR values you want to test
-snr_values = [24, 18, 12, 8, 6]
-# Define Original Data as a vector of Binary digits
-vector = read_text("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
-# Modulate a sin wave using this data
-time, modulated = modulate_bask(vector, samples_per_bit=1000, freq=5)
-# Simulate Noise in the signal
-noisy_signals = snr(snr_values, modulated)
-# Recovered Data
-recovered = demodulate_bask(modulated, samples_per_bit=1000)
-recovered_text = bits_to_text(recovered)
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Bandpass_Filtered_Signals.png}
+    \caption{Filtered Signals}
+\end{figure}
+\FloatBarrier
 
-# Error Checking
-print("Original bits:", len(vector))
-print("Recovered bits:", len(recovered))
-print("Difference:", len(recovered) - len(vector))
-print("Original first 40 bits:", vector[:40])
-print("Recovered first 40 bits:", recovered[:40])
-errors = sum(1 for a,b in zip(vector, recovered) if a!=b)
-print("Total bit errors:", errors)
+\subsection{Recovering Signal Data}
 
-# Display Results
-print("Recovered text:", recovered_text)
-plot_bits(time, modulated, samples_per_bit=1000, bits=100)
-
-# Display Noisy signals
-num_plots = len(noisy_signals)
-plt.figure(figsize=(12, 3 * num_plots))
-
-for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
-    plt.subplot(num_plots, 1, i)
-    plt.plot(time[:50000], noisy[:50000])
-    plt.title(f"BASK Signal with AWGN (SNR = {snr} dB)")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.grid(True)
-
-plt.tight_layout()
-plt.show()
+\begin{flushleft}
+    In order to retrieve data from the transmitted signal it must first be demodulated into its constituent frequencies. 
+    The demodulate bask() function demodulates the signal by dividing the input waveform into blocks corresponding to individual bit intervals, 
+    each containing "samples per bit" samples. For each block, it performs simple envelope detection by computing the mean absolute amplitude, which estimates the signal’s strength for that bit period. 
+    It then compares this amplitude to a threshold (default 0.4): amplitudes above the threshold are interpreted as bit 1, and those below as bit 0, just like the previous functions.
+    The function returns the sequence of recovered binary values. These binary values are then put through UTF-8 decoding to reproduce our text file.
+\end{flushleft}
 
 
-fs = 1000      # sampling rate
-fc = 5         # carrier frequency
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Original_Text.png}
+    \caption*{Original Text}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Reconstructed_Text.png}
+    \caption*{Reconstructed Text}
+\end{subfigure}
+\end{figure}
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.6\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Bit_Error.png}
+    \caption*{Total Bit Error (The same for all SNR)}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.39\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{SNR.png}
+    \caption*{SNR Values}
+\end{subfigure}
+\end{figure}
 
-lowcut = 4.5       # narrow band around fc (20% of original BW)
-highcut = 5.5
+\section{Conclusion}
 
-# Design the filter
-bp_filter = fir_bandpass_filter(lowcut, highcut, fs, numtaps=801)
+\begin{flushleft}
+    This Simulation of BASK seems technically robust. However, there are several issues. The noise implementation was insufficient to
+    simulate bit error. This may be corrected by increasing the SNR values. Another issue is that only AGWN was attempted and no other forms
+    of signal loss or disruption as would be present in an urban environment. With that being said the actual implementation of BASK is clean.
+    From a technical standpoint the simulation is successful, but from a testing point of view it could be improved.
+\end{flushleft}
 
-# Display Filtered Noisy Signals
-num_plots = len(noisy_signals)
-plt.figure(figsize=(12, 3 * num_plots))
-
-for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
-    # Apply the filter to your BASK signal
-    filtered_signal = apply_fir(noisy, bp_filter)
-    plt.subplot(num_plots, 1, i)
-    plt.plot(time[:50000], noisy[:50000], label="Noisy")
-    plt.plot(time[:50000], filtered_signal[:50000], label="Filtered", linewidth=2)
-
-    plt.grid(True)
-    plt.legend()
-    plt.title(f"Bandpass Filter (SNR = {snr} dB)")
-    
-plt.tight_layout()
-plt.show()
-\end{minted}
-
-\begin{minted}{python}
-import random
-import numpy as np
-
-def gen_rand_vector():
-    # 1. Generate random 100-bit sequence
-    bit_sequence = [random.randint(0,1) for _ in range(100)]
-    samples_per_bit = 10
-    # 2. Expand each bit into samples, convert to float
-    vector = np.array([float(bit) for bit in bit_sequence for _ in range(samples_per_bit)])
-    return vector
-
-# 3. Compute RMS voltage of the waveform
-def vrms(waveform):
-    v_rms_carrier = np.sqrt(np.mean(waveform**2))
-    print(f"Signal RMS voltage = {v_rms_carrier:.5f}")
-    return v_rms_carrier
-
-# Function to add AWGN at given SNR_dB and rescale the signal
-def add_awgn_and_rescale(carrier, snr_db, v_rms_carrier):
-    # compute noise RMS
-    v_rms_noise = v_rms_carrier / (10**(snr_db / 20.0))
-    print(f"For SNR={snr_db} dB → Noise RMS = {v_rms_noise:.5f}")
-    # generate noise (Gaussian with zero mean)
-    noise = np.random.randn(len(carrier)) * v_rms_noise
-    # add noise to signal
-    noisy = carrier + noise
-    # rescale so max(|value|) = 1
-    max_abs = np.max(np.abs(noisy))
-    if max_abs == 0:
-        rescaled = noisy
-    else:
-        rescaled = noisy / max_abs
-    return rescaled
-
-# Function to just add AWGN at given SNR_dB
-def add_awgn(carrier, snr_db, v_rms_carrier):
-    v_rms_noise = v_rms_carrier / (10**(snr_db / 20.0))
-    print(f"For SNR={snr_db} dB → Noise RMS = {v_rms_noise:.5f}")
-    noise = np.random.randn(len(carrier)) * v_rms_noise
-    noisy = carrier + noise
-    return noisy  # no rescale here
-
-
-# 5. Generate noisy waveforms & save CSVs
-def snr(snr_values, vector):
-    if(not snr_values):
-        raise FileNotFoundError("SNR Values not found. Abort.")
-
-    # Compute RMS voltage of the waveform
-    v_rms_carrier = vrms(vector)
-
-    noisy_waves = {}
-    for snr in snr_values:
-        noisy_wave = add_awgn(vector, snr, v_rms_carrier)
-        # fname = f"waveform_SNR_{snr}dB.csv"
-        # with open(fname, "w", newline="") as f:
-        #     writer = csv.writer(f)
-        #     for v in noisy_wave:
-        #         writer.writerow([v])
-        # print(f"Saved {fname}")
-        noisy_waves[snr] = noisy_wave
-    return noisy_waves
-
-
-# Define SNR values
-snr_values = [24, 18, 12, 8, 6]
-# Define vector
-vector = gen_rand_vector()
-# Generate noisy waveforms & save CSVs
-noisy_waves = snr(snr_values, vector)
-\end{minted}
 \end{document}

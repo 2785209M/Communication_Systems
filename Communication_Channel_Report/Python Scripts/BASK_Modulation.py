@@ -7,7 +7,6 @@ def read_text(path):
         s = f.read()
 
     data = s.encode("utf-8")  # convert to real bytes
-
     b = ''.join(format(byte, '08b') for byte in data)
     vector = [int(bit) for bit in b]
 
@@ -128,20 +127,18 @@ def add_awgn(carrier, snr_db, v_rms_carrier):
 
 # END OF FUNCTIONS -------------------------------------------------------
 
-# 1. Define the SNR values you want to test
-snr_values = [24, 18, 6]
-
-# 2. Define Original Data as a vector of Binary digits
+# 1. Define Original Data as a vector of Binary digits
 vector = read_text("/home/james/University/Communication_Systems/Communication_Channel_Report/Input.txt")
 
-# 3. Modulate a sin wave using this data
+# 2. Modulate a sin wave using this data
 time, modulated = modulate_bask(vector, samples_per_bit=1000, freq=5)
 plot_bits(time, modulated, samples_per_bit=1000, bits=100)
 
-# 4. Simulate Noise in the signal
+# 3. Simulate Noise in the signal
+snr_values = [24, 18, 6]
 noisy_signals = snr(snr_values, modulated)
 
-# 5. Recovered Data
+# 4. Recovered Data
 num_plots = len(noisy_signals)
 plt.figure(figsize=(12, 3 * num_plots))
 for i, (snr, noisy) in enumerate(noisy_signals.items(), start=1):
